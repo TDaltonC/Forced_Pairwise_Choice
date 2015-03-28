@@ -133,7 +133,7 @@ while i <= long;
             settings.cueLocation(i,1:2) = s;
             controlIndex2 = controlIndex2  + 1;
 
-        case 4 %is for the SCALING by 2 condition
+        case 4 %is for the SCALING by 2 condition6 - same type 
             caseNumber = 4;
             setNumber = scalingConditionOrder2(scalingIndex2);
             itemCode = Nscaling2Set(scalingConditionOrder2(scalingIndex2),1);
