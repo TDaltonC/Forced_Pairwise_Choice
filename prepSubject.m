@@ -25,13 +25,13 @@ if exist('input','var') == 0;
 end
 
 %% Items
-options = {[1,3],[4,2],[4,1],[3,4],[5,3],[7,6],[1,3],[4,2],[7,1],[4,3],[2,1],[5,6],[7,7],[1,2],[5,6],[8,7]};
+options = {[1,0],[0,0],[4,1],[3,4],[5,3],[7,6],[1,3],[4,2],[7,1],[4,3],[2,1],[5,6],[7,7],[1,2],[5,6],[8,7]};
 optionsImages = {};
 
 for i = 1:length(options);
     for z = 1:2;
-        v = genvarname(strcat('item', num2str(options{i}(z))));
-        optionsImages{i}(z) = eval([v '= imread(strcat(''Image'', num2str(options{i}(z)), ''.jpg''));']); 
+        %v = genvarname(strcat('item', num2str(options{i}(z))));
+        %optionsImages{i}(z) = eval([v '= imread(strcat(''Image'', num2str(options{i}(z)), ''.jpg''));']); 
     end
 end
 
@@ -62,13 +62,15 @@ end
 
 %Randomize arrays
 rand = randperm(length(singleOptions));
-singleOptions = singleOption(rand);
+singleOptions = singleOptions(rand);
 rand = randperm(length(heteroOptions));
 heteroOptions = heteroOptions(rand);
 rand = randperm(length(homoOptions));
 homoOptions = homoOptions(rand);
 
 %THIS WILL USE THE WEIGHTING FUNCTION
+totalTrials = runs * trialsPerRun;
+[weightedArray, inputString] = repeatedhistory(4, 3, 2);
 
 orderedOptions = {};
 nullIndex = 1;
@@ -77,9 +79,8 @@ heteroIndex = 1;
 homoIndex = 1; %It's over 9000! 9000?!
 
 %Go through the weightArray and determine the options order
-weightArray = [];
-for i=1:length(weightArray);
-    switch weightArray[i]
+for i=1:length(weightedArray);
+    switch weightedArray(i)
         case 1 %NULL
             orderedOptions = cat(1, orderedOptions, nullOptions{nullIndex});
             nullIndex = nullIndex + 1;
@@ -123,7 +124,10 @@ settings.singleOptions = singleOptions;
 settings.heteroOptions = heteroOptions;
 settings.homoOptions = homoOptions;
 settings.images = optionsImages;
-
+% if the records folder doesn't exist, create it.
+if settings.recordfolder
+    mkdir(settings.recordfolder);
+end
 recordname = [settings.recordfolder '/' num2str(subjID) '_globalSettings' '.mat'];
 % Save the settings (the results are saved later)
 save (recordname, 'settings')
