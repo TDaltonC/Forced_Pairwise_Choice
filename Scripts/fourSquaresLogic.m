@@ -1,6 +1,9 @@
 function [] = fourSquaresLogic(itemTop, itemBottom,switchColors, w)
-%UNTITLED6 Summary of this function goes here
-%   Detailed explanation goes here
+%   Notes:
+%       -Make the squares larger
+%       -Aspect ratio
+%       -Center the squares
+
 
 screenNumber = max(Screen('Screens'));
 [width height] = Screen('WindowSize', screenNumber);
@@ -8,6 +11,7 @@ w = Screen('OpenWindow', screenNumber,[],[],[],[]);
 
 grey = imread('grey.jpg');
 greyt = Screen('MakeTexture',w,grey);
+
 
 %itemTop = imread('cheese.jpg');
 %itemBottom = imread('chips.jpg');
@@ -88,9 +92,6 @@ bottomPositions = cat(2, bottomPositions, bottomItemBottom);
 %%Draw
 v = cat(1,leftPositions,topPositions,rightPositions,bottomPositions);
 Screen('DrawTextures',w,draw,[],v);
-Screen('Flip',w);
-KbWait;
-Screen('CloseAll');
 
 end
 

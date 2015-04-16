@@ -1,4 +1,4 @@
-function [ r,s ] = fourSquaresLogic(numberItems,r,s,itema,itemb,itemc,itemd, w)
+function [r,s] = fourSquaresLogic(numberItems,r,s,itema,itemb,itemc,itemd, w)
 %UNTITLED6 Summary of this function goes here
 %   Detailed explanation goes here
 

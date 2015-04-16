@@ -1,4 +1,4 @@
-function [ output_args ] = feedbackLogic(key,itemTop, itemBottom, switchColors,w)
+function [ output_args ] = feedbackLogic( key,numberItems,r,s,v1,v2,v3,v4,w)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
  
@@ -39,7 +39,8 @@ feedbackRect = [pwCue1(feedbackPosition),phCue1(feedbackPosition),...
 
 Screen('FrameRect', w,0,feedbackRect,2);
 
-fourSquaresLogic(itemTop, itemBottom, switchColors,w);
+fourSquaresLogic(numberItems,r,s,v1,v2,v3,v4,w);
+
 
 end
 

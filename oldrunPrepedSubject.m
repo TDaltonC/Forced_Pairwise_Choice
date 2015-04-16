@@ -1,30 +1,40 @@
 function [ output_args ] = runPrepedSubject( subjID, j, input)
 %% Load Everything
-
-if exist('subjID','var') == 0;
-    subjID = 1;
-end
-
-if exist('j','var') == 0;
-    j = 1;
-end
-
 recordfolder = 'records';
 load([recordfolder '/' num2str(subjID) '_globalSettings' '.mat']);
-itemImages = settings.images;
+items = settings.allItems;
+
+
+controlConditionOrder1 = settings.controlConditionOrder1;
+controlConditionOrder2 = settings.controlConditionOrder2;
+scalingConditionOrder2 = settings.scalingConditionOrder2;
+scalingConditionOrder3 = settings.scalingConditionOrder3;
+scalingConditionOrder4 = settings.scalingConditionOrder4;
+bundlingConditionOrder2 = settings.bundlingConditionOrder2;
+bundlingConditionOrder3 = settings.bundlingConditionOrder3;
+bundlingConditionOrder4 = settings.bundlingConditionOrder4;
+
+Ncontrol1Set = settings.controlSet;
+Ncontrol2Set = settings.control2Set;
+Nscaling2Set = settings.scaling2Set;
+Nscaling3Set = settings.scaling3Set;
+Nscaling4Set = settings.scaling4Set;
+Nbundling2Set = settings.bundling2Set;
+Nbundling3Set = settings.bundling3Set; 
+Nbundling4Set = settings.bundling4Set;
 
 switch j
     case 1
-        trialOrder = settings.orderedOptions{1:88};
+        trialOrder = settings.trialOrder(1:88);
         settings.trialOrder = trialOrder;
     case 2
-        trialOrder = settings.orderedOptions{89:184};
+        trialOrder = settings.trialOrder(89:184);
         settings.trialOrder = trialOrder;
     case 3
-        trialOrder = settings.orderedOptions{185:279};
+        trialOrder = settings.trialOrder(185:279);
         settings.trialOrder = trialOrder;
     case 4
-        trialOrder = settings.orderedOptions{280:378};
+        trialOrder = settings.trialOrder(280:378);
         settings.trialOrder = trialOrder;
     case 5
         trialOrder = settings.trialOrder(379:474);
@@ -62,12 +72,19 @@ save (recordname, 'settings')
 fileID = fopen(textFileName, 'w');
 
 
-%%Run Trials
-trialLength = length(trialOrder);
-
+%%
+long = length(trialOrder);
 
 % Set all of the indeces equal to 1
 i = 1;
+controlIndex1 = 1;
+controlIndex2 = 1;
+scalingIndex2 = 1;
+scalingIndex3 = 1;
+scalingIndex4 = 1;
+bundlingIndex2 = 1;
+bundlingIndex3 = 1;
+bundlingIndex4 = 1;
 
 feedbackTime = 0.25;
 
@@ -80,11 +97,27 @@ end
 
 RestrictKeysForKbCheck([30, 31, 32, 33]); % these are the keycodes for 1,2,3,4 on a Mac
 
-while i <= trialLength;
-    top = trialOrder{i}(1);
-    bottom = trialOrder{i}(2);
-    fourSquaresLogic(top,bottom,0, w);
-
+while i <= long;
+    switch trialOrder(i);
+        case 1 %is for the NULL condition
+            caseNumber = 1;
+            setNumber = 0;
+            drawFixation(w);
+            
+        case 2 %is for the CONTROL condition (1st half: 5 reps)
+            caseNumber = 2;
+            setNumber = controlConditionOrder1(controlIndex1);
+            itemCode = Ncontrol1Set(controlConditionOrder1(controlIndex1));
+            v1 = items{itemCode};
+            v2 = items{itemCode};
+            v3 = items{itemCode};
+            v4 = items{itemCode};
+            numberItems = 1; r = 0; s = 0;
+            [r,s] = fourSquaresLogic(numberItems,r,s, v1, v2, v3, v4, w);
+            settings.itemLocation(i,1:4) = r;
+            settings.cueLocation(i,1:2) = s;
+            controlIndex1 = controlIndex1  + 1;
+            
     fprintf(fileID,'%d\t%d\t',caseNumber,setNumber);
 
     [VBLTimestamp, StimulusOnsetTime, FlipTimestamp] = Screen('Flip', w, whenTime(i,1));
@@ -103,28 +136,28 @@ while i <= trialLength;
         if(strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==1);
             behavioral.key(i,1) = '1';
             behavioral.choice(i,1) = 'r';
-            feedbackLogic('1',top, bottom, 0,w);
+            feedbackLogic('1',numberItems,r,s,v1,v2,v3,v4,w);
             Screen('Flip',w);
             drawFixation(w);
             Screen('Flip',w,behavioral.secs(i)+feedbackTime);
         elseif (strcmp(KbName(keyCode),'3#') || strcmp(KbName(keyCode),'4$')) && (s(1)==1);
             behavioral.key(i,1) = '3';
             behavioral.choice(i,1) = 'v';
-            feedbackLogic('3',top, bottom, 0,w);            
+            feedbackLogic('3',numberItems,r,s,v1,v2,v3,v4,w);            
             Screen('Flip',w);
             drawFixation(w);
             Screen('Flip',w,behavioral.secs(i)+feedbackTime);
         elseif (strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@')) && (s(1)==2);
             behavioral.key(i,1) = '1';
             behavioral.choice(i,1) = 'v';
-            feedbackLogic('1',top, bottom, 0,w);
+            feedbackLogic('1',numberItems,r,s,v1,v2,v3,v4,w);
             Screen('Flip',w);
             drawFixation(w);
             Screen('Flip',w,behavioral.secs(i)+feedbackTime);
         elseif (strcmp(KbName(keyCode),'3#') || strcmp(KbName(keyCode),'4$')) && (s(1)==2);
             behavioral.key(i,1) = '3';
             behavioral.choice(i,1) = 'r';
-            feedbackLogic('3',top, bottom, 0,w);
+            feedbackLogic('3',numberItems,r,s,v1,v2,v3,v4,w);
             Screen('Flip',w);
             drawFixation(w);
             Screen('Flip',w,behavioral.secs(i)+feedbackTime);
