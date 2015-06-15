@@ -3,6 +3,7 @@ function [] = generateOrder()
 
 %Helpful Youtube link: https://www.youtube.com/watch?v=MIx_PN4FkKk
 %for getting up to speed quickly
+%Documentation: http://surfer.nmr.mgh.harvard.edu/optseq/optseq2.help.txt
 
 %%This script will generate the order of the events to be shown to the
 %%participants
