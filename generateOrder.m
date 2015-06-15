@@ -1,5 +1,5 @@
 function [] = generateOrder()
-%HAVE DALTON SWITCH THE BIN
+cd('Sequences')
 
 %Helpful Youtube link: https://www.youtube.com/watch?v=MIx_PN4FkKk
 %for getting up to speed quickly
@@ -12,7 +12,7 @@ function [] = generateOrder()
 %first one
 
 %Path: Where the exec is located
-execPath = '/usr/local/bin/optsec2';
+execPath = '/usr/local/bin/optseq2';
 %Number of time points in scan
 ntp = ' --ntp 162';
 %Time between volumes
@@ -35,6 +35,7 @@ command = strcat(execPath, ntp, tr, psdwin, eventOne, eventTwo, eventThree, nkee
 
 %Run command. This will create the necessary files in the directory
 [status, output] = unix(command);
+cd('../')
 end
 
 
