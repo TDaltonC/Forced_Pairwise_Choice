@@ -1,4 +1,4 @@
-function [ output_args ] = prepSubject( subjID,runs,trialsPerRun,input,options)
+function [] = prepSubject( subjID,runs,trialsPerRun,input,options)
 %% If not running on actual subject, use the following to test out script
 % item1c = 1; item2c = 2; item3c = 3;
 % item4c = 4; item5c = 5; item6c = 6;
@@ -25,15 +25,16 @@ if exist('input','var') == 0;
 end
 
 %% Items
-options = {[1,0],[0,0],[4,1],[3,4],[5,3],[7,6],[1,3],[4,2],[7,1],[4,3],[2,1],[5,6],[7,7],[1,2],[5,6],[8,7]};
-optionsImages = {};
-
-for i = 1:length(options);
-    for z = 1:2;
-        %v = genvarname(strcat('item', num2str(options{i}(z))));
-        %optionsImages{i}(z) = eval([v '= imread(strcat(''Image'', num2str(options{i}(z)), ''.jpg''));']); 
-    end
+if exist('options', 'var') == 0;
+    options = {[1,0],[0,0],[4,1],[3,4],[5,3],[7,6],[1,3],[4,2],[7,1],[4,3],[2,1],[5,6],[7,7],[1,2],[5,6],[8,7]};
 end
+
+optionsImages = cell(21,1);
+for i = 1:21;
+    optionsImages{i} = imread(strcat('Image', num2str(i), '.jpg'));
+end
+
+grey = imread('grey.jpg');
 
 %% **Design the task orders**
 
@@ -76,7 +77,7 @@ orderedOptions = {};
 nullIndex = 1;
 singleIndex = 1;
 heteroIndex = 1;
-homoIndex = 1; %It's over 9000! 9000?!
+homoIndex = 1; 
 
 %Go through the weightArray and determine the options order
 for i=1:length(weightedArray);
@@ -108,6 +109,31 @@ for i=1:length(weightedArray);
     end
 end
 
+%% Random Switching
+    %Randomized sideswitching of the buttons to improve. Ints of 1 or 2. 1 is dont switch, 2 is switch.
+    %Randomized for each options - Hetero, Homo, Single.
+    %Note: Not truely random. Counterbalanced by splitting the switching
+    %exactly in half for each set of options, then randperming.
+    
+    %Function to make these arrays
+    function array = randSwitch(weightedArray, numb)
+        switchLength = nnz(weightedArray==numb);
+        %Make Even
+        if mod(switchLength,2) == 1
+          switchLength = switchLength + 1;
+        end;
+        %Fill Array
+        switchFill(1:switchLength/2,1) = 0;
+        switchFill(switchLength/2+1:switchLength,1) = 1;
+        %Random Perm
+        randOrder = randperm(switchLength);
+        array = switchFill(randOrder,1);   
+    end
+
+    switchSingle = randSwitch(weightedArray, 2);
+    switchHetero = randSwitch(weightedArray, 3);
+    switchHomo = randSwitch(weightedArray, 4);
+
 %% Saving the settings
 
 % these are the same across all runs, so no need to save them under that run's name in the settings file
@@ -115,7 +141,6 @@ settings.recordfolder = 'records';
 settings.subjID = subjID;
 %options
 settings.allOptions = options;
-settings.optionsImages = optionsImages;
 settings.orderedOptions = orderedOptions;
 %arrays
 settings.weightedArray = weightedArray;
@@ -124,6 +149,14 @@ settings.singleOptions = singleOptions;
 settings.heteroOptions = heteroOptions;
 settings.homoOptions = homoOptions;
 settings.images = optionsImages;
+settings.nullImage = grey;
+%Randomized switching
+settings.switchSingle = switchSingle;
+settings.switchHetero = switchHetero;
+settings.switchHomo = switchHomo;
+settings.switchSingleCount = 1;
+settings.switchHeteroCount = 1;
+settings.switchHomoCount = 1;
 % if the records folder doesn't exist, create it.
 if settings.recordfolder
     mkdir(settings.recordfolder);
@@ -131,4 +164,4 @@ end
 recordname = [settings.recordfolder '/' num2str(subjID) '_globalSettings' '.mat'];
 % Save the settings (the results are saved later)
 save (recordname, 'settings')
-
+end

@@ -1,21 +1,12 @@
-function [] = fourSquaresLogic(itemTop, itemBottom,switchColors, w)
+function [] = fourSquaresLogic(itemTop, itemBottom, w, width, height, switching)
 %   Notes:
 %       -Make the squares larger
 %       -Aspect ratio
 %       -Center the squares
 
+textureTop = Screen('MakeTexture',w,itemTop);
+textureBottom = Screen('MakeTexture',w,itemBottom);
 
-screenNumber = max(Screen('Screens'));
-[width height] = Screen('WindowSize', screenNumber);
-w = Screen('OpenWindow', screenNumber,[],[],[],[]);
-
-grey = imread('grey.jpg');
-greyt = Screen('MakeTexture',w,grey);
-
-
-%itemTop = imread('cheese.jpg');
-%itemBottom = imread('chips.jpg');
-switchColors = 0;
 
 %% load textures for the items -- flipping is handled by runPrepedSubject
 %textureTop = Screen('MakeTexture',w,itemTop);
@@ -57,10 +48,10 @@ leftCueRect = [leftCueLeft, cueTop, leftCueRight, cueBottom];
 rightCueRect = [rightCueLeft, cueTop, rightCueRight, cueBottom];
 
 black = 0;
-if switchColors; %Left circle black, right circle white
+if switching == 1; %SWITCH. Left circle black, right circle white
     Screen('FillOval',w,black,leftCueRect);
     Screen('FrameOval',w,black,rightCueRect,2); %pen width is 2
-else %Left circle white, white circle black
+else %DON'T SWITCH. Left circle white, white circle black
     Screen('FillOval',w,black,rightCueRect);
     Screen('FrameOval',w,black,leftCueRect,2); %pen width is 2
 end
@@ -74,8 +65,8 @@ rightPositions = [];
 bottomPositions = [];
 
 %Add the textures to the draw
-draw = cat(1,draw,greyt);
-draw = cat(1,draw,greyt);
+draw = cat(1,draw,textureTop);
+draw = cat(1,draw,textureBottom);
 
 %Left and right are the same for both
 leftPositions = cat(2,leftPositions,    itemLeft);

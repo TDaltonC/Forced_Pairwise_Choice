@@ -1,9 +1,7 @@
-function [ output_args ] = feedbackLogic(key,itemTop, itemBottom, switchColors,w)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
- 
+function [] = feedbackLogic(key,itemTop, itemBottom, w, switching)
+
 screenNumber = max(Screen('Screens'));
-[width height] = Screen('WindowSize', screenNumber);
+[width, height] = Screen('WindowSize', screenNumber);
 
 %% These are all of the position constants
 centerw = width/2;  % This is the center width of the screen
@@ -37,9 +35,9 @@ phCue2 = [phCue2, phCue2];
 feedbackRect = [pwCue1(feedbackPosition),phCue1(feedbackPosition),...
     pwCue2(feedbackPosition),phCue2(feedbackPosition)];
 
-Screen('FrameRect', w,0,feedbackRect,2);
+Screen('FrameRect',w,0,feedbackRect,2);
 
-fourSquaresLogic(itemTop, itemBottom, switchColors,w);
+fourSquaresLogic(itemTop, itemBottom, w, width, height, switching);
 
 end
 
