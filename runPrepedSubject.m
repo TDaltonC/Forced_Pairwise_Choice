@@ -15,30 +15,17 @@ recordfolder = 'records';
 load([recordfolder '/' num2str(subjID) '_globalSettings' '.mat']);
 itemImages = settings.images;
 
-switch j
-    case 1
-        trialOrder = settings.orderedOptions(1:88);
-        settings.trialOrder = trialOrder;
-    case 2
-        trialOrder = settings.orderedOptions{89:184};
-        settings.trialOrder = trialOrder;
-    case 3
-        trialOrder = settings.orderedOptions{185:279};
-        settings.trialOrder = trialOrder;
-    case 4
-        trialOrder = settings.orderedOptions{280:378};
-        settings.trialOrder = trialOrder;
-    case 5
-        trialOrder = settings.trialOrder(379:474);
-        settings.trialOrder = trialOrder;
-end
-
-%get the order
-weightedOrder = settings.weightedArray;
-
-
 %% Setting up the Run
 load(strcat('Run',num2str(j),'.mat'));
+trialOrder = settings.orderedOptions(settings.indexes{j}(1):settings.indexes{j}(2));
+%Index to start looking at the combination arrays
+combinationIndex = settings.indexes{j}(1); 
+%Index to manage the run loop
+currentIndex = 1;
+%Run Trials
+trialLength = length(trialOrder);
+%get the order
+weightedOrder = settings.weightedArray;
 
 %% Set up the screen
 screenNumber = max(Screen('Screens'));
@@ -67,13 +54,7 @@ textFileName = [settings.recordfolder '/' num2str(subjID) '_' num2str(j) '_' dat
 save (recordname, 'settings')
 fileID = fopen(textFileName, 'w');
 
-
-%Run Trials
-trialLength = length(trialOrder);
-
-%Set all of the indeces equal to 1
-i = 1;
-
+%Feedback Time
 feedbackTime = 0.25;
 
 whenTime = zeros(length(time),1);
@@ -86,92 +67,97 @@ end
 %RestrictKeysForKbCheck([30, 31, 32, 33]); % these are the keycodes for 1,2,3,4 on a Mac
 RestrictKeysForKbCheck([49, 50, 51, 52]); % these are the keycodes for 1,2,3,4 on a Windows
 
-while i <= trialLength;
+while currentIndex <= trialLength;
    
     %Draw Textures for trial
-    if weightedOrder(i) == 1; %%If null, draw fixation
+    if weightedOrder(combinationIndex) == 0; %%If null, draw fixation
         drawFixation(w);
     else %If either single, hetero, or homo then pick textures
-        if trialOrder{i}(1) ~= 0;
-          top = itemImages{trialOrder{i}(1)};
+        if trialOrder{currentIndex}(1) ~= 0;
+          top = itemImages{trialOrder{currentIndex}(1)};
         else
             top = settings.nullImage;
         end
-        if trialOrder{i}(2) ~= 0;
-            bottom = itemImages{trialOrder{i}(2)};
+        if trialOrder{currentIndex}(2) ~= 0;
+            bottom = itemImages{trialOrder{currentIndex}(2)};
         else
             bottom = settings.nullImage;
         end
         %Determine if switching
-        switch weightedOrder(i)
-            case 2%Single
+        switch weightedOrder(combinationIndex)
+            case 1%Single
                 shouldSwitch = settings.switchSingle(settings.switchSingleCount);
                 settings.switchSingleCount = settings.switchSingleCount + 1;
-            case 3%Hetero
+                shouldFlip = settings.flipSingle(settings.flipSingleCount);
+                settings.flipSingleCount = settings.flipSingleCount + 1;
+            case 2%Hetero
                 shouldSwitch = settings.switchHetero(settings.switchHeteroCount);
                 settings.switchHeteroCount = settings.switchHeteroCount + 1;
-            case 4%Homo
+                shouldFlip = settings.flipHetero(settings.flipHeteroCount);
+                settings.flipHeteroCount = settings.flipHeteroCount + 1;
+            case 3%Homo
                 shouldSwitch = settings.switchHomo(settings.switchHomoCount);
                 settings.switchHomoCount = settings.switchHomoCount + 1;
+                shouldFlip = settings.flipHomo(settings.flipHomoCount);
+                settings.flipHomoCount = settings.flipHomoCount + 1;
         end
         %Draw the textures
-        fourSquaresLogic(top,bottom, w, width, height, shouldSwitch); 
+        fourSquaresLogic(top,bottom, w, width, height, shouldSwitch, shouldFlip); 
     end;
     
     %fprintf(fileID,'%d\t%d\t',caseNumber,setNumber);
 
     %Flip the screen
-    [VBLTimestamp, StimulusOnsetTime, FlipTimestamp] = Screen('Flip', w, whenTime(i,1));
-    settings.VBLTimestamp(i) = VBLTimestamp;
-    settings.StimulusOnsetTime(i) = StimulusOnsetTime;
-    settings.FlipTimestamp(i) = FlipTimestamp;
+    [VBLTimestamp, StimulusOnsetTime, FlipTimestamp] = Screen('Flip', w, whenTime(currentIndex,1));
+    settings.VBLTimestamp(currentIndex) = VBLTimestamp;
+    settings.StimulusOnsetTime(currentIndex) = StimulusOnsetTime;
+    settings.FlipTimestamp(currentIndex) = FlipTimestamp;
 
     %Response
-    if weightedOrder(i) == 1  % if the condition is the NULL condition (i.e. fixation cross), then show keep the fixation cross displayed for the amount of time, specified by variable "isi" -- an optseq output
-        WaitSecs(isi(i))
-        behavioral.secs(i) = whenTime(i,1)+isi(i);
-    elseif weightedOrder(i) > 1 % for all conditions except for the NULL, 
+    if weightedOrder(combinationIndex) == 0  % if the condition is the NULL condition (i.e. fixation cross), then show keep the fixation cross displayed for the amount of time, specified by variable "isi" -- an optseq output
+        WaitSecs(isi(currentIndex))
+        behavioral.secs(currentIndex) = whenTime(currentIndex,1)+isi(currentIndex);
+    elseif weightedOrder(combinationIndex) > 0 % for all conditions except for the NULL, 
                              % keep display on screen until subject presses
                              % button or 4 seconds is up (whichever happens 
                              % first) and record button press in the former case   
-        [behavioral.secs(i), keyCode, behavioral.deltaSecs(i)] = KbWait(-1,0,(whenTime(i,1)+4));
+        [behavioral.secs(currentIndex), keyCode, behavioral.deltaSecs(currentIndex)] = KbWait(-1,0,(whenTime(currentIndex,1)+4));
         %WHITE IS ON-SCREEN! BLACK IS OFF-SCREEN. If switch is 0, then black
         %(off) is right and white (on) is left. Else switch is 1, black (off)
         %is right
         if (strcmp(KbName(keyCode),'1!') || strcmp(KbName(keyCode),'2@'));
             if shouldSwitch
-                behavioral.choice(i,1) = 'o';
+                behavioral.choice(currentIndex,1) = 'o';
             else
-                behavioral.choice(i,1) = 's';
+                behavioral.choice(currentIndex,1) = 's';
             end    
-            behavioral.key(i,1) = '1';
-            feedbackLogic('1',top, bottom, w, shouldSwitch);
+            behavioral.key(currentIndex,1) = '1';
+            feedbackLogic('1',top, bottom, w, shouldSwitch, shouldFlip);
             Screen('Flip',w);
             drawFixation(w);
-            Screen('Flip',w,behavioral.secs(i)+feedbackTime);
+            Screen('Flip',w,behavioral.secs(currentIndex)+feedbackTime);
         elseif (strcmp(KbName(keyCode),'3#') || strcmp(KbName(keyCode),'4$'));
             if shouldSwitch
-                behavioral.choice(i,1) = 's';
+                behavioral.choice(currentIndex,1) = 's';
             else
-                behavioral.choice(i,1) = 'o';
+                behavioral.choice(currentIndex,1) = 'o';
             end    
-            behavioral.key(i,1) = '3';
-            feedbackLogic('3',top, bottom,w, shouldSwitch);            
+            behavioral.key(currentIndex,1) = '3';
+            feedbackLogic('3',top, bottom,w, shouldSwitch, shouldFlip);            
             Screen('Flip',w);
             drawFixation(w);
-            Screen('Flip',w,behavioral.secs(i)+feedbackTime);
+            Screen('Flip',w,behavioral.secs(currentIndex)+feedbackTime);
         else
             drawFixation(w);
             Screen('Flip',w);
-            behavioral.key(i,1) = '0';
-            behavioral.choice(i,1) = 'n';
+            behavioral.key(currentIndex,1) = '0';
+            behavioral.choice(currentIndex,1) = 'n';
         end 
     end
-    fprintf(fileID,'%f\t%f\n',StimulusOnsetTime-UT, behavioral.secs(i)-StimulusOnsetTime);
-    i = i + 1;
-    
+    fprintf(fileID,'%f\t%f\n',StimulusOnsetTime-UT, behavioral.secs(currentIndex)-StimulusOnsetTime);
+    currentIndex = currentIndex + 1;
+    combinationIndex = combinationIndex + 1;
 end
-
 %% at the end
 drawStop(w);
 Screen('Flip',w);

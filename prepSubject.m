@@ -7,16 +7,18 @@ function [] = prepSubject( subjID,runs,trialsPerRun,input,options)
 % item13c = 13; item14c = 14; item15c= 15;
 % item16c = 16; item17c= 17; item18c = 18;
 % item19c = 19; item20c = 20; item21c = 21;
+
+%Things to do
+%Flip top & bottom randomly across all things
+%Make the timing specific to the run, but keep an overall list
+
+
 %% Settings
 %Default for runs
 if exist('runs', 'var') == 0;
     runs = 5;
 end
-%Default for trials
-if exist('trialsPerRun', 'var') ==0;
-    trialsPerRun = 75;
-end
-% Default for subjID is 1. This only kicks in iff no subject ID is given.
+% Default for subjID is 1. This only kicks in off on a subject ID is given.
 if exist('subjID','var') == 0;
     subjID = 1;
 end
@@ -24,13 +26,55 @@ if exist('input','var') == 0;
     input = 'k';
 end
 
-%% Items
-if exist('options', 'var') == 0;
-    options = {[1,0],[0,0],[4,1],[3,4],[5,3],[7,6],[1,3],[4,2],[7,1],[4,3],[2,1],[5,6],[7,7],[1,2],[5,6],[8,7]};
+%%Translate Schedules to .mat && Create the ordered array
+weightedArray = [];
+indexes = {};
+startIndex = 1; %Give it a starting point of 1
+for n = 1:runs
+    %% Initialize variables.
+    run = int2str(n);
+    filename = strcat('Sequences/ex1-00', run, '.par');
+    delimiter = ' ';
+    %Determine document format
+    formatSpec = '%f%f%f%f%s%[^\n\r]';
+    %Open file
+    fileID = fopen(filename,'r');
+    %Read file
+    dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'MultipleDelimsAsOne', true,  'ReturnOnError', false);
+    %Close file
+    fclose(fileID);
+    %Set variables
+    time = dataArray{:, 1};
+    condition = dataArray{:, 2};
+    isi = dataArray{:, 3};
+    VarName4 = dataArray{:, 4};
+    condName = dataArray{:, 5};
+    clearvars filename delimiter formatSpec fileID dataArray ans;
+    runName = strcat('Run',run,'.mat');
+    %Add to array of order of all conditions
+    weightedArray = cat(1,weightedArray, condition);
+    %Mark ending position
+    temp = [startIndex, length(weightedArray)];
+    indexes = cat(1,indexes,temp);
+    %Set up for next loop
+    startIndex = length(weightedArray)+1;
+    %Save
+    cd('Runs')
+    save (runName);
+    cd('../')
 end
 
+
+%% Items
+%Parse the text file given to us from the GA
+[single, homo, hetero, reward] = readJSON();
+single = [1,2,3,4,5,6,7,8,9,10];
+homo = [11,12,13,14,15,16,17,18,19,20];
+hetero = [21,22,23,24,25,26,27,28,29,30];
+
+%Create the images
 optionsImages = cell(21,1);
-for i = 1:21;
+for i = 1:30;
     optionsImages{i} = imread(strcat('Image', num2str(i), '.jpg'));
 end
 
@@ -38,27 +82,26 @@ grey = imread('grey.jpg');
 
 %% **Design the task orders**
 
-%%Break the options into arrays based on other characteristsc
-%Each of these arrays is a different type: NULL, SINGLE, HETERO, HOMO
-nullOptions = {};
+%%Break the items into combinations
 singleOptions = {};
 heteroOptions = {};
 homoOptions = {};
 
-%Go through the existing options and break them into their respective
-%groups
-for i=1:length(options);
-    if (options{i}(1) == 0 && options{i}(2) == 0)
-        nullOptions = cat(1, nullOptions, options{i});
-    elseif (options{i}(1) == 0 || options{i}(2) == 0)
-        singleOptions = cat(1, singleOptions, options{i});
+for i=1:length(single);
+    temp = [single(i), 0];
+    singleOptions = cat(1, singleOptions, temp);
+end
+for i=1:length(homo);
+    temp = [homo(i), homo(i)];
+    homoOptions = cat(1, homoOptions, temp);
+end
+for i=1:length(hetero);
+    if (i+1 < length(hetero)+1)
+        temp = [hetero(i), hetero(i+1)];
     else
-        if options{i}(1) == options{i}(2)
-            homoOptions = cat(1, homoOptions, options{i});
-        else
-            heteroOptions = cat(1, heteroOptions, options{i});
-        end
+        temp = [hetero(i), hetero(1)];
     end
+    heteroOptions = cat(1, heteroOptions, temp);
 end
 
 %Randomize arrays
@@ -69,12 +112,11 @@ heteroOptions = heteroOptions(rand);
 rand = randperm(length(homoOptions));
 homoOptions = homoOptions(rand);
 
-%THIS WILL USE THE WEIGHTING FUNCTION
-totalTrials = runs * trialsPerRun;
-[weightedArray, inputString] = repeatedhistory(4, 3, 2);
+%Load the order from the runs
+%totalTrials = runs * trialsPerRun;
+%[weightedArray, inputString] = repeatedhistory(4, 3, 2);
 
 orderedOptions = {};
-nullIndex = 1;
 singleIndex = 1;
 heteroIndex = 1;
 homoIndex = 1; 
@@ -82,26 +124,22 @@ homoIndex = 1;
 %Go through the weightArray and determine the options order
 for i=1:length(weightedArray);
     switch weightedArray(i)
-        case 1 %NULL
-            orderedOptions = cat(1, orderedOptions, nullOptions{nullIndex});
-            nullIndex = nullIndex + 1;
-            if (nullIndex > length(nullOptions))
-                nullIndex = 1;
-            end
-        case 2 %Single
+        case 0 %NULL --This is added to keep consistency in the index between the weightArray and orderedOptions
+            orderedOptions = cat(1, orderedOptions, [0,0]);
+        case 1 %Single
             orderedOptions = cat(1, orderedOptions, singleOptions{singleIndex});
             singleIndex = singleIndex + 1;
             if (singleIndex > length(singleOptions))
                 singleIndex = 1;
             end
-        case 3 %Hetero
+        case 2 %Hetero
             orderedOptions = cat(1, orderedOptions, heteroOptions{heteroIndex});
             heteroIndex = heteroIndex + 1;
             if (heteroIndex > length(heteroOptions))
                 heteroIndex = 1;
             end
-        case 4 %Homo
-            orderedOptions = cat(1, orderedOptions, heteroOptions{1});
+        case 3 %Homo
+            orderedOptions = cat(1, orderedOptions, homoOptions{homoIndex});
             homoIndex = homoIndex + 1;
             if (homoIndex > length(homoOptions))
                 homoIndex = 1;
@@ -110,14 +148,14 @@ for i=1:length(weightedArray);
 end
 
 %% Random Switching
-    %Randomized sideswitching of the buttons to improve. Ints of 1 or 2. 1 is dont switch, 2 is switch.
-    %Randomized for each options - Hetero, Homo, Single.
+    %Randomized sideswitching of the buttons. Ints of 1 or 2. 1 is dont switch, 2 is switch.
+    %Randomized for each combination - Hetero, Homo, Single.
     %Note: Not truely random. Counterbalanced by splitting the switching
-    %exactly in half for each set of options, then randperming.
+    %exactly in half for each set of combinations, then randperming.
     
     %Function to make these arrays
     function array = randSwitch(weightedArray, numb)
-        switchLength = nnz(weightedArray==numb);
+        switchLength = nnz(weightedArray==numb); %How many times the option is in the array
         %Make Even
         if mod(switchLength,2) == 1
           switchLength = switchLength + 1;
@@ -130,9 +168,14 @@ end
         array = switchFill(randOrder,1);   
     end
 
-    switchSingle = randSwitch(weightedArray, 2);
-    switchHetero = randSwitch(weightedArray, 3);
-    switchHomo = randSwitch(weightedArray, 4);
+    switchSingle = randSwitch(weightedArray, 1);
+    switchHetero = randSwitch(weightedArray, 2);
+    switchHomo = randSwitch(weightedArray, 3);
+    
+    %Rand flipping for drawing the combinations
+    flipSingle = randSwitch(weightedArray, 1);
+    flipHetero = randSwitch(weightedArray, 2);
+    flipHomo = randSwitch(weightedArray, 3);
 
 %% Saving the settings
 
@@ -140,23 +183,29 @@ end
 settings.recordfolder = 'records';
 settings.subjID = subjID;
 %options
-settings.allOptions = options;
 settings.orderedOptions = orderedOptions;
+settings.indexes = indexes;
 %arrays
 settings.weightedArray = weightedArray;
-settings.nullOptions = nullOptions;
 settings.singleOptions = singleOptions;
 settings.heteroOptions = heteroOptions;
 settings.homoOptions = homoOptions;
 settings.images = optionsImages;
 settings.nullImage = grey;
+settings.reward = reward;
 %Randomized switching
 settings.switchSingle = switchSingle;
 settings.switchHetero = switchHetero;
 settings.switchHomo = switchHomo;
+settings.flipSingle = flipSingle;
+settings.flipHetero = flipHetero;
+settings.flipHomo = flipHomo;
 settings.switchSingleCount = 1;
 settings.switchHeteroCount = 1;
 settings.switchHomoCount = 1;
+settings.flipSingleCount = 1;
+settings.flipHeteroCount = 1;
+settings.flipHomoCount = 1;
 % if the records folder doesn't exist, create it.
 if settings.recordfolder
     mkdir(settings.recordfolder);

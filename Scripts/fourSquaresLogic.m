@@ -1,12 +1,16 @@
-function [] = fourSquaresLogic(itemTop, itemBottom, w, width, height, switching)
+function [] = fourSquaresLogic(itemTop, itemBottom, w, width, height, switching, flipping)
 %   Notes:
 %       -Make the squares larger
 %       -Aspect ratio
 %       -Center the squares
 
-textureTop = Screen('MakeTexture',w,itemTop);
-textureBottom = Screen('MakeTexture',w,itemBottom);
-
+if flipping
+    textureTop = Screen('MakeTexture',w,itemTop);
+    textureBottom = Screen('MakeTexture',w,itemBottom);
+else
+    textureTop = Screen('MakeTexture', w, itemBottom);
+    textureBottom = Screen('MakeTexture',w,itemTop);
+end;
 
 %% load textures for the items -- flipping is handled by runPrepedSubject
 %textureTop = Screen('MakeTexture',w,itemTop);
@@ -17,10 +21,10 @@ centerw = width/2;  % This is the center width of the screen
 thirdHeight = height/3; % The height of the first third
 twoThirdHeight = 2 * height/3; % height of the second third
 %eccen =   150;      % This is the eccentricity. Distance from the center to the right edge of the array
-itemw =   70;       % The width of one item in the array
-itemh =   70;       % The height of one item in the array
-gutterw = 20;       % The height of the gutters between the items
-gutterh = 20;       % The height of the gutters between the items
+itemw =   132;       % The width of one item in the array
+itemh =   240;       % The height of one item in the array
+gutterw = 40;       % The height of the gutters between the items
+gutterh = 40;       % The height of the gutters between the items
 
 %Left and Right are the same for both items
 itemLeft = centerw - (itemw*0.5);
@@ -41,7 +45,7 @@ rightCueLeft = centerw + 1*gutterw;
 rightCueRight = centerw + 3*gutterw;
 
 %Left and right cue share the same top
-cueTop = twoThirdHeight + 3*itemh;
+cueTop = twoThirdHeight + itemh;
 cueBottom = cueTop + 2*gutterw;
 
 leftCueRect = [leftCueLeft, cueTop, leftCueRight, cueBottom];
