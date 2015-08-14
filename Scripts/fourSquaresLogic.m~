@@ -19,25 +19,24 @@ end;
 %% These are all of the position constants
 centerw = width/2;  % This is the center width of the screen
 thirdHeight = height/3; % The height of the first third
-cueHeight = height*.4; %2/5ths height of the screen
 twoThirdHeight = 2 * height/3; % height of the second third
 %eccen =   150;      % This is the eccentricity. Distance from the center to the right edge of the array
-itemw =   .6*height/5;       % The width of one item in the array
-itemh =   height/5;       % The height of one item in the array
+itemw =   132;       % The width of one item in the array
+itemh =   160;       % The height of one item in the array
 gutterw = 40;       % The height of the gutters between the items
-gutterh = height/20;       % The height of the gutters between the items
+gutterh = 40;       % The height of the gutters between the items
 
 %Left and Right are the same for both items
 itemLeft = centerw - (itemw*0.5);
 itemRight = centerw + (itemw*0.5);
 
 %Top Item -top and bottom
-topItemTop = cueHeight - gutterh - itemh;
-topItemBottom = cueHeight - gutterh;
+topItemTop = thirdHeight - gutterh - itemh;
+topItemBottom = thirdHeight - gutterh;
 
 %Bottom Item - top and bottom
-bottomItemBottom = cueHeight + gutterh + itemh;
-bottomItemTop = cueHeight + gutterh;
+bottomItemBottom = thirdHeight + gutterh + itemh;
+bottomItemTop = thirdHeight + gutterh;
 
 % response cue position coordinates
 leftCueLeft = centerw - 3*gutterw;
@@ -46,10 +45,8 @@ rightCueLeft = centerw + 1*gutterw;
 rightCueRight = centerw + 3*gutterw;
 
 %Left and right cue share the same top
-% cueTop = twoThirdHeight + itemh;
-% cueBottom = cueTop + 2*gutterw;
-cueBottom = height -  gutterw;
-cueTop = cueBottom - 2*gutterw;
+cueTop = twoThirdHeight + itemh;
+cueBottom = cueTop + 2*gutterw;
 
 leftCueRect = [leftCueLeft, cueTop, leftCueRight, cueBottom];
 rightCueRect = [rightCueLeft, cueTop, rightCueRight, cueBottom];

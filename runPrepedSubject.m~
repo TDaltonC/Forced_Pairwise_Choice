@@ -64,8 +64,8 @@ end
 
 %whenTime(length(time)+1,1) = UT + j*10 + 324 + time(k);
 
-RestrictKeysForKbCheck([30, 31, 32, 33]); % these are the keycodes for 1,2,3,4 on a Mac
-% RestrictKeysForKbCheck([49, 50, 51, 52]); % these are the keycodes for 1,2,3,4 on a Windows
+%RestrictKeysForKbCheck([30, 31, 32, 33]); % these are the keycodes for 1,2,3,4 on a Mac
+RestrictKeysForKbCheck([49, 50, 51, 52]); % these are the keycodes for 1,2,3,4 on a Windows
 
 while currentIndex <= trialLength;
    

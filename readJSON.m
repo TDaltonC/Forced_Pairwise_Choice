@@ -9,7 +9,10 @@ hetero = parsedData.hetero; %get data from struct
 hetero = [hetero{:}]; %convert array of cells to array of ints
 homo = parsedData.homo;
 homo = [homo{:}];
-singleton = parsedData.singleton;
+singleton = parsedData.singleton;for i = 1:length(hetero)/2
+    temp = [hetero{2*i-1}, hetero{2*i}];
+    heteroOptions = cat(1, heteroOptions, temp);
+end        
 singleton = [singleton{:}];
 median = parsedData.median;
 

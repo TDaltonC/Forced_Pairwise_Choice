@@ -4,7 +4,7 @@ screenNumber = max(Screen('Screens'));
 [width, height] = Screen('WindowSize', screenNumber);
 
 %% These are all of the position constants
-% centerw = width/2;  % This is the center width of the screen
+centerw = width/2;  % This is the center width of the screen
 % thirdHeight = height/3; % The height of the first third
 % twoThirdHeight = 2 * height/3; 
 % centerh = height/2; % The center of the height of the screen
@@ -36,11 +36,8 @@ pwCueL2 = centerw - 1*gutterw;
 pwCueR1 = centerw + 1*gutterw;
 pwCueR2 = centerw + 3*gutterw;
 
-% phCue1 = twoThirdHeight + itemh;
-% phCue2 = phCue1 + 2*gutterw;
-
-phCue2 = height -  gutterw;
-phCue1 = phCue2 - 2*gutterw;
+phCue1 = twoThirdHeight + itemh;
+phCue2 = phCue1 + 2*gutterw;
 
 pwCue1 = [pwCueL1, pwCueR1];
 pwCue2 = [pwCueL2, pwCueR2];

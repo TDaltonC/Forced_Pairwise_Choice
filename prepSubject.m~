@@ -41,7 +41,6 @@ for n = 1:runs
     fileID = fopen(filename,'r');
     %Read file
     dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'MultipleDelimsAsOne', true,  'ReturnOnError', false);
-    disp(dataArray{1})
     %Close file
     fclose(fileID);
     %Set variables
@@ -96,19 +95,22 @@ for i=1:length(homo);
     temp = [homo(i), homo(i)];
     homoOptions = cat(1, homoOptions, temp);
 end
-% for i=1:length(hetero); %this counter needs to be going up by 2
-%     if (i+1 < length(hetero)+1)
-%         temp = [hetero(i), hetero(i+1)];
-%     else
-%         temp = [hetero(i), hetero(1)];
-%     end
-%     heteroOptions = cat(1, heteroOptions, temp);
-% end
+for i=1:length(hetero); %this counter needs to be going up by 2
+    if (i+1 < length(hetero)+1)
+        temp = [hetero(i), hetero(i+1)];
+    else
+        temp = [hetero(i), hetero(1)];
+    end
+    heteroOptions = cat(1, heteroOptions, temp);
+end
+
+
+%%% 
 
 for i = 1:length(hetero)/2
-    temp = [hetero{2*i-1}, hetero{2*i}];
-    heteroOptions = cat(1, heteroOptions, temp);
-end        
+    if (i+2 < length(hetero)/2)
+        temp = [hetero{2*i}, hetero{2*i + 1}]'
+
 
 %Randomize arrays
 rand = randperm(length(singleOptions));
