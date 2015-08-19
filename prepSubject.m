@@ -1,4 +1,4 @@
-function [] = prepSubject( subjID,runs,trialsPerRun,input,options)
+function [] = prepSubject(subjID,runs)
 %% If not running on actual subject, use the following to test out script
 % item1c = 1; item2c = 2; item3c = 3;
 % item4c = 4; item5c = 5; item6c = 6;
@@ -68,7 +68,7 @@ end
 
 %% Items
 %Parse the text file given to us from the GA
-[single, homo, hetero, reward] = readJSON();
+[single, homo, hetero, reward] = importRanking(subjID);
 % single = [1,2,3,4,5,6,7,8,9,10];
 % homo = [11,12,13,14,15,16,17,18,19,20];
 % hetero = [21,22,23,24,25,26,27,28,29,30];

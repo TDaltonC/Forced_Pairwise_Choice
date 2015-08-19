@@ -59,7 +59,7 @@ feedbackTime = 0.25;
 
 whenTime = zeros(length(time),1);
 for k = 1:(length(time))
-    whenTime(k,1) = UT + 10 + time(k);
+    whenTime(k,1) = UT + 4 + time(k);
 end
 
 %whenTime(length(time)+1,1) = UT + j*10 + 324 + time(k);
